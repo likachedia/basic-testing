@@ -26,8 +26,8 @@ const testCases = [
     // continue cases for other actions    
 ];
 
-describe.each(testCases)(`.($a, $b)`, ({a, b, action, expected}) => {
-  test(`${action} (${a}, ${b}) returns ${expected}`, () => {
+describe.each(testCases)(`.should ($a $action $b) return $expected`, ({a, b, action, expected}) => {
+  test(`should  ${a} ${action} ${b} returns ${expected}`, () => {
     expect(simpleCalculator({a: a, b: b, action: action})).toBe(expected);
   });
 });

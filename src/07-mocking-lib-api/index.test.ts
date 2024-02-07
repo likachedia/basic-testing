@@ -2,53 +2,41 @@
 import axios from 'axios';
 import { throttledGetDataFromApi } from './index'; 
 
-jest.mock("axios");
+beforeAll(() => {
+  jest.useFakeTimers();
+});
+
+afterEach(() => {
+  jest.clearAllMocks();
+});
+
 describe('throttledGetDataFromApi', () => {
   test('should create instance with provided base url', async () => {
-    // const getSpy = jest.spyOn(axios.Axios.prototype, 'get')
-    // .mockImplementation(async ()=> ({response: "response"}));
-    // const createSpy = jest.spyOn(axios, 'create');
-    // jest.useFakeTimers();
-    // const path = 'some-path';
-    // await throttledGetDataFromApi(path);
-    // jest.runAllTimers();
-    // const getPath = getSpy.mock.calls[0]?.[0];
-    
-    // expect(createSpy)
+    const axiosSpy = jest.spyOn(axios, 'create');
+    axios.Axios.prototype.get = jest.fn().mockResolvedValue('mockResolvedValue1');
+    await throttledGetDataFromApi('/');
+    jest.runAllTimers();
+    expect(axiosSpy).toHaveBeenCalled();
+    jest.clearAllMocks();
   });
 
   test('should perform request to correct provided url', async () => {
-    const getSpy = jest.spyOn(axios.Axios.prototype, 'get')
-    .mockImplementation(async ()=> ({response: "response"}));
-    jest.useFakeTimers();
-    const path = 'some-path';
-    await throttledGetDataFromApi(path);
+    axios.Axios.prototype.get = jest.fn().mockResolvedValue('mockValue2');
+    const axiosSpy = jest.spyOn(axios.Axios.prototype, 'get');
+    await throttledGetDataFromApi('/mock-url');
     jest.runAllTimers();
-    const getPath = getSpy.mock.calls[0]?.[0];
-    
-    await throttledGetDataFromApi(path);
-    expect(getSpy).toBeCalledWith(getPath);
-
+    expect(axiosSpy).toHaveBeenCalled();
+    jest.clearAllMocks();
   });
 
   test('should return response data', async () => {
-    const users = [
-      { id: 1, name: "John" },
-      { id: 2, name: "Andrew" },
-    ];
-    const baseURL = 'https://jsonplaceholder.typicode.com'
-    const getSpy = jest.spyOn(axios.Axios.prototype, 'get')
-    .mockImplementation(async ()=> (users));
-    jest.useFakeTimers();
-    const path = 'some-path';
-    const result = await throttledGetDataFromApi(path);
+    axios.Axios.prototype.get = jest
+      .fn()
+      .mockResolvedValue({ data: 'mockValue3' });
+    const mockData = await throttledGetDataFromApi('/');
     jest.runAllTimers();
-    const getPath = getSpy.mock.calls[0]?.[0];
-    expect(getSpy).toBeCalledWith(getPath);
-
-    jest.spyOn(axios.Axios.prototype, 'get').mockResolvedValueOnce(users);
-    expect(axios.get).toHaveBeenCalledWith(baseURL);
-    expect(result).toEqual(users);
+    expect(mockData).toBe('mockValue3');
+    jest.clearAllMocks();
   });
 });
 

@@ -4,9 +4,6 @@ import { mockOne, mockTwo, mockThree, unmockedFunction } from './index';
 
 jest.mock('./index', () => {
   const originalModule = jest.requireActual<typeof import('./index')>('./index');
-  jest.spyOn(originalModule, 'mockOne')
-  jest.spyOn(originalModule, 'mockTwo')
-  jest.spyOn(originalModule, 'mockThree')
   return {
     __esModule: true,
     ...originalModule,

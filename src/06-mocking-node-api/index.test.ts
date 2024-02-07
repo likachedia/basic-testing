@@ -4,12 +4,8 @@ jest.mock('fs');
 import  fs  from 'fs';
 import { readFileAsynchronously, doStuffByTimeout, doStuffByInterval } from '.';
 import path from 'path';
-const {existsSync} = jest.requireActual('fs');
-// import * as fsPromises from 'node:fs/promises';
-// import { existsSync } from 'fs';
+import fsPromises from 'fs/promises';
 
-// jest.spyOn(fs, 'existsSync');
-// jest.spyOn(global, 'setTimeout');
 describe('doStuffByTimeout', () => {
   beforeAll(() => {
     jest.useFakeTimers();
@@ -20,18 +16,12 @@ describe('doStuffByTimeout', () => {
   });
 
   test('should set timeout with provided callback and timeout', () => {
-    // jest.useFakeTimers();
-
     const callback = jest.fn();
     const delay = 1000;
     jest.spyOn(global, 'setTimeout')
     doStuffByTimeout(callback, delay);
-    jest.advanceTimersByTime(delay);
-    jest.runAllTimers();
     expect(setTimeout).toHaveBeenCalledTimes(1);
     expect(setTimeout).toHaveBeenCalledWith(callback, delay);
-
-    // jest.useRealTimers();
   });
 
   test('should call callback only after timeout', () => {
@@ -94,25 +84,17 @@ describe('readFileAsynchronously', () => {
 
   test('should return null if file does not exist', async () => {
     const pathToFile = './nonexistent.txt';
-
-    jest.replaceProperty(fs, 'existsSync', () => false)
+    jest.spyOn(fs, 'existsSync').mockReturnValue(false);
     const result = await readFileAsynchronously(pathToFile);
 
     expect(result).toBeNull();
 
-    existsSync.mockRestore();
   });
 
   test('should return file content if file exists', async () => {
-    // const pathToFile = 'test.txt';
-    // const expectedContent = 'Test file content';
-
-    // jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-    
-    // jest.spyOn(fs, 'readFile').mockReturnValue(Promise.resolve(expectedContent))
-
-    // const result = await readFileAsynchronously(pathToFile);
-
-    // expect(result).toBe(expectedContent);
+    jest.spyOn(fsPromises, 'readFile').mockResolvedValue('mock data');
+    jest.spyOn(fs, 'existsSync').mockReturnValue(true);
+    const res = await readFileAsynchronously('./path/mock.txt');
+    expect(res).toBe('mock data');
   });
 });
